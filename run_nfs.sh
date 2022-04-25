@@ -41,7 +41,7 @@ function start()
     /usr/sbin/rpcinfo 127.0.0.1 > /dev/null; s=$?
     if [ $s -ne 0 ]; then
        echo "Starting rpcbind"
-       /usr/sbin/rpcbind -w
+       /sbin/rpcbind -w
     fi
 
     mount -t nfsd nfsd /proc/fs/nfsd; s=$?
@@ -54,12 +54,12 @@ function start()
 
 
     # -V 3: enable NFSv3
-    /usr/sbin/rpc.mountd -N 2 -V 3
+    /usr/sbin/rpc.mountd -N 2 -N 3 -V 4 -V 4.1 -p 20048
 
     /usr/sbin/exportfs -r
     # -G 10 to reduce grace time to 10 seconds (the lowest allowed)
-    /usr/sbin/rpc.nfsd -G 10 -N 2 -V 3
-    /usr/sbin/rpc.statd --no-notify
+    /usr/sbin/rpc.nfsd -G 10 -N 2 -N 3 -V 4 -V 4.1 2
+    /sbin/rpc.statd --no-notify
     echo "NFS started"
     showmount -e
 }

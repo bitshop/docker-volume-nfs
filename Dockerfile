@@ -1,8 +1,8 @@
-FROM centos:latest
-MAINTAINER "Alphayax <alphayax@gmail.com>"
+FROM debian:bullseye-slim
+ARG DEBIAN_FRONTEND=noninteractive
 
-# Install nfs-utils
-RUN yum -y install /usr/bin/ps nfs-utils && yum clean all
+RUN apt-get update -y \
+    && apt-get install -y --no-install-recommends procps nfs-kernel-server
 
 # Copy entrypoint
 ADD run_nfs.sh /usr/local/bin/run_nfs.sh
@@ -12,7 +12,7 @@ RUN mkdir -p /exports	\
  && chmod +x /usr/local/bin/run_nfs.sh
 
 # Export NFS Ports
-EXPOSE 20048/tcp 2049/tcp
+EXPOSE 20048/tcp 2049/tcp 111/tcp 111/udp
 
 # Expose volume
 VOLUME /exports
@@ -21,5 +21,3 @@ VOLUME /exports
 ENTRYPOINT ["/usr/local/bin/run_nfs.sh"]
 
 CMD ["/exports"]
-
-
