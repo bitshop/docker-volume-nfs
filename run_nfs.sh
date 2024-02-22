@@ -26,16 +26,8 @@ function start()
     done
     shift $(($OPTIND - 1))
 
-    # prepare /etc/exports
-    for i in "$@"; do
-        # fsid=0: needed for NFSv4
-        # echo "$i *(rw,fsid=0,insecure,no_root_squash)" >> /etc/exports
-        if [ -v gid ] ; then
-            chmod 070 $i && chgrp $gid $i
-        fi
-        echo "Serving $i"
-    done
-    cat /etc/exports.d/* > /etc/exports
+    # For simplicity sake we're just going to export /exports folder
+    echo "/exports *(rw,fsid=0,insecure,no_root_squash)" > /etc/exports
 
     # start rpcbind if it is not started yet
     /usr/sbin/rpcinfo 127.0.0.1 > /dev/null; s=$?
@@ -54,11 +46,11 @@ function start()
 
 
     # -V 3: enable NFSv3
-    /usr/sbin/rpc.mountd -N 2 -N 3 -V 4 -V 4.1 -p 20048
+    /usr/sbin/rpc.mountd -N 3 -V 4 -V 4.1 -p 20048
 
     /usr/sbin/exportfs -r
     # -G 10 to reduce grace time to 10 seconds (the lowest allowed)
-    /usr/sbin/rpc.nfsd -G 10 -N 2 -N 3 -V 4 -V 4.1 2
+    /usr/sbin/rpc.nfsd -G 10 -N 3 -V 4 -V 4.1 2
     /sbin/rpc.statd --no-notify
     echo "NFS started"
     showmount -e
